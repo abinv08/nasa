@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mars Rover Photos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #1d1d1d;
+      color: white;
+      text-align: center;
+    }
+    .photos {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+    .photo {
+      margin: 10px;
+    }
+    img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+    .photo-container {
+      width: 300px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Curiosity Rover Photos from Sol 1000</h1>
+  <div id="photo-gallery" class="photos"></div>
+
+  <script>
+    const apiKey = '6ZeAsFre1YQAtg9QWgw7IPiEbJf1211ix2sfQNQl'; // Replace with your NASA API Key if you have one
+    const sol = 1000;
+    const apiUrl = `https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=${sol}&api_key=${apiKey}`;
+
+    // Fetch Mars Rover Photos
+    function fetchMarsPhotos() {
+      fetch(apiUrl)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Error fetching photos: ${response.statusText}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log(data); // Log the response data for debugging
+          displayPhotos(data.photos); // Display the photos
+        })
+        .catch(error => {
+          console.error('Error fetching photos:', error);
+          alert('Failed to fetch photos.');
+        });
+    }
+
+    // Display Mars Rover Photos
+    function displayPhotos(photos) {
+      const photoGallery = document.getElementById('photo-gallery');
+      photoGallery.innerHTML = ''; // Clear previous results
+
+      // Check if photos is defined and is an array
+      if (!photos || !Array.isArray(photos) || photos.length === 0) {
+        photoGallery.innerHTML = '<p>No photos found.</p>';
+        return;
+      }
+
+      // Loop through each photo and display it
+      photos.forEach(photo => {
+        const photoContainer = document.createElement('div');
+        photoContainer.classList.add('photo-container');
+        
+        const imgElement = document.createElement('img');
+        imgElement.src = photo.img_src; // Accessing the image source
+        imgElement.alt = `Mars photo taken by ${photo.rover.name} on ${photo.earth_date}`;
+        
+        // Append image to container
+        photoContainer.appendChild(imgElement);
+        
+        // Append container to gallery
+        photoGallery.appendChild(photoContainer);
+      });
+    }
+
+    // Call fetch function when the page loads
+    window.onload = fetchMarsPhotos;
+  </script>
+
+</body>
+</html>

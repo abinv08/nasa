@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NASA EPIC Earth Images</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #1d1d1d;
+      color: white;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      margin: 20px 0;
+    }
+    .photos {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+    .photo-container {
+      width: 300px;
+      margin: 10px;
+    }
+    img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+    p {
+      font-size: 14px;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>NASA EPIC Earth Images (Natural)</h1>
+  <div id="photo-gallery" class="photos"></div>
+
+  <script>
+    const apiKey = '6ZeAsFre1YQAtg9QWgw7IPiEbJf1211ix2sfQNQl'; // Replace with your NASA API Key if you have one
+    const apiUrl = `https://api.nasa.gov/EPIC/api/natural?api_key=${apiKey}`;
+
+    async function fetchEpicImages() {
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        
+        const gallery = document.getElementById('photo-gallery');
+
+        if (data.length > 0) {
+          data.forEach(photo => {
+            const photoContainer = document.createElement('div');
+            photoContainer.className = 'photo-container';
+
+            // Build the image URL
+            const date = photo.date.split(" ")[0].replace(/-/g, '/');
+            const imageUrl = `https://epic.gsfc.nasa.gov/archive/natural/${date}/png/${photo.image}.png`;
+
+            const imgElement = document.createElement('img');
+            imgElement.src = imageUrl;
+            imgElement.alt = `Earth image taken on ${photo.date}`;
+
+            const photoInfo = document.createElement('p');
+            photoInfo.innerText = `Date: ${photo.date} | Caption: ${photo.caption}`;
+
+            photoContainer.appendChild(imgElement);
+            photoContainer.appendChild(photoInfo);
+            gallery.appendChild(photoContainer);
+          });
+        } else {
+          gallery.innerText = 'No images found.';
+        }
+      } catch (error) {
+        console.error('Error fetching images:', error);
+      }
+    }
+
+    function handle429Error(response) {
+    const retryAfter = response.headers.get('retry-after');
+    if (retryAfter) {
+        alert(`Too many requests. Please retry after ${retryAfter} seconds.`);
+    } else {
+        alert('Too many requests. Please try again later.');
+    }
+}
+
+
+    fetchEpicImages();
+  </script>
+
+</body>
+</html>
